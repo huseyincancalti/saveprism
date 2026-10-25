@@ -38,7 +38,7 @@ jobs:
         # before release: add ubuntu-24.04 and macos-latest here again.
         os: [windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Tauri system packages (Linux)
         if: runner.os == 'Linux'
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
 

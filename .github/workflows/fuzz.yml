@@ -26,7 +26,7 @@ jobs:
       matrix:
         target: [detect, json, layers, marshal, sol, gen3, javaser, lcf, pickle, nrbf, reg, godot, sqlite, wolf, qsp, naninovel, witcher3, terraria]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@nightly
 
