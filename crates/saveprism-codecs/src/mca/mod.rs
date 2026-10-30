@@ -28,6 +28,10 @@
 //! | `raw` | `Bytes`, compressed payload of a chunk that stays opaque | no |
 //! | `note` | `Str`, why the chunk is opaque | no |
 //!
+//! Inside `data`, byte, int and long arrays are one read-only `Bytes` node each with the raw
+//! big-endian elements: a full region holds tens of millions of array elements (block states,
+//! light), far too many for one node each.
+//!
 //! # Writing
 //!
 //! The original file is kept as the codec parameter `original`. An unchanged document writes it

@@ -203,3 +203,71 @@ fn detection_uses_the_extension_and_the_header() {
         "format.minecraft-region"
     );
 }
+
+/// A region with one uncompressed chunk holding a string and a byte, int and long array.
+fn region_with_arrays() -> Vec<u8> {
+    let mut nbt = vec![0x0A, 0, 0];
+    nbt.extend_from_slice(&[0x08, 0, 4]);
+    nbt.extend_from_slice(b"Name");
+    nbt.extend_from_slice(&[0, 1, b'a']);
+    nbt.extend_from_slice(&[0x07, 0, 5]);
+    nbt.extend_from_slice(b"Light");
+    nbt.extend_from_slice(&[0, 0, 0, 3, 1, 2, 3]);
+    nbt.extend_from_slice(&[0x0B, 0, 3]);
+    nbt.extend_from_slice(b"Ids");
+    nbt.extend_from_slice(&[0, 0, 0, 2, 0, 0, 0, 7, 0xFF, 0xFF, 0xFF, 0xFF]);
+    nbt.extend_from_slice(&[0x0C, 0, 6]);
+    nbt.extend_from_slice(b"States");
+    nbt.extend_from_slice(&[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 5]);
+    nbt.push(0);
+    let mut region = vec![0u8; 8192];
+    region[..4].copy_from_slice(&[0, 0, 2, 1]);
+    region.extend_from_slice(&u32::try_from(nbt.len() + 1).expect("small").to_be_bytes());
+    region.push(3);
+    region.extend_from_slice(&nbt);
+    region.resize(8192 + 4096, 0);
+    region
+}
+
+#[test]
+fn chunk_arrays_are_one_read_only_block_each() {
+    let input = region_with_arrays();
+    let mut decoded = decode(&input);
+    assert_eq!(encode(&decoded), input);
+    assert_eq!(
+        value(&decoded, "/chunks/0/data/Light"),
+        Value::Bytes(vec![1, 2, 3])
+    );
+    assert_eq!(
+        value(&decoded, "/chunks/0/data/Ids"),
+        Value::Bytes(vec![0, 0, 0, 7, 0xFF, 0xFF, 0xFF, 0xFF])
+    );
+    let states = decoded
+        .doc
+        .resolve(&Path::parse("/chunks/0/data/States").expect("path"))
+        .expect("node");
+    assert!(
+        decoded
+            .doc
+            .get(states)
+            .expect("node")
+            .flags
+            .contains(saveprism_core::NodeFlags::READ_ONLY)
+    );
+
+    set(
+        &mut decoded,
+        "/chunks/0/data/Name",
+        OwnedValue::Str("b".into()),
+    );
+    let again = decode(&encode(&decoded));
+    assert_eq!(value(&again, "/chunks/0/data/Name"), Value::Str("b".into()));
+    assert_eq!(
+        value(&again, "/chunks/0/data/Light"),
+        Value::Bytes(vec![1, 2, 3])
+    );
+    assert_eq!(
+        value(&again, "/chunks/0/data/States"),
+        Value::Bytes(vec![0, 0, 0, 0, 0, 0, 0, 5])
+    );
+}

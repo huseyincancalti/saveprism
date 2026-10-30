@@ -341,7 +341,7 @@ The most asked:
 | CBOR | `.cbor` | values (tags stay as read-only wrappers) |
 | BSON | `.bson` | doubles, strings, ints and booleans (other types read-only) |
 | Minecraft NBT | `.dat`, `.nbt` (Java big-endian, Bedrock little-endian, gzip) | values and numeric array elements |
-| Minecraft Java region | `.mca`, `.mcr` | chunk NBT values; opaque, LZ4 and external `.mcc` chunks stay read-only |
+| Minecraft Java region | `.mca`, `.mcr` | chunk NBT values (block and light arrays read-only); opaque, LZ4 and external `.mcc` chunks stay read-only |
 | Compressed saves | bzip2, Zstandard, xz, LZMA-alone, LZip, LZ4 frame, Brotli, raw deflate, LZF (raw and `ZV` blocks) — found by content, any extension | the same formats inside any of these layers |
 | XOR-obfuscated saves | single-byte or repeating key up to 32 bytes | the format inside; the key is recovered from the inner format automatically |
 | Tar archives | `.tar` | one payload entry, the rest of the archive kept byte-identical |

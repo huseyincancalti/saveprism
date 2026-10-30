@@ -65,6 +65,11 @@ The root is a read-only object (`MCA:region`) with one key:
 | `/chunks/n/raw` | `Bytes`, compressed payload of an opaque chunk | no |
 | `/chunks/n/note` | `Str`, why the chunk is opaque | no |
 
+Inside `data`, byte, int and long arrays are one read-only `Bytes` node each (the raw big-endian
+elements, hint `NBT:byte-array`, `NBT:int-array` or `NBT:long-array`). A full region holds about
+fifty thousand array elements per chunk (block states, sky and block light), so one node per
+element would need tens of millions of nodes and several GB of memory.
+
 A chunk is opaque when it is external, uses LZ4 or an unknown compression type, or when its
 decompressed bytes are not a complete NBT tree. An opaque chunk keeps its compressed bytes in
 `raw`; the rest of the region remains editable. A damaged location table, an overlapping range or

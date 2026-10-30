@@ -2,16 +2,15 @@
 
 Player-facing notes for each release. The app shows the section of the running version.
 
-## Unreleased
+## 0.9.1
+
+Four new languages, more games, and fixes for Linux and macOS.
 
 ### More saves
 - Grand Theft Auto III, Grand Theft Auto IV and Grand Theft Auto: San Andreas saves: money, health, armour, wanted and chaos level, in-game time and the last mission name where the game stores one.
-- Minecraft Java region files (`.mca`, `.mcr`): edit the NBT tree of each chunk; LZ4, unknown and external `.mcc` chunks stay read-only.
+- Minecraft Java region files (`.mca`, `.mcr`): edit the NBT tree of each chunk; block, light and other arrays stay read-only, and LZ4, unknown and external `.mcc` chunks stay read-only.
 - GameMaker `ds_list` dumps and the newer `ds_map` format (magic 403), plus arrays and the remaining scalar types in both maps and lists.
-
-## 0.9.1
-
-Four new languages, and fixes for Linux and macOS.
+- Thanks to YunusTAS13 for all three.
 
 ### Languages
 - SavePrism now speaks Spanish, Russian, Japanese and Simplified Chinese: pick one in the language menu in the header or in Settings.

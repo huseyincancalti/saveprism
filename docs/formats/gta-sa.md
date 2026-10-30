@@ -1,4 +1,4 @@
-<!-- Behavioral spec written on 2026-10-29 from the public GTA:SA save description and the MIT-licensed 010 Editor template by Seemann (x87/GTA-Save-Formats), with the MIT-licensed libsavegame used to confirm block order and field offsets. Clean room: no game code was decompiled and no third-party editor code or table was copied. -->
+<!-- Behavioral spec written on 2026-10-29 from the public GTA:SA save description and the MIT-licensed 010 Editor template by Seemann (x87/GTA-Save-Formats), with the open-source libsavegame (read only) used to confirm block order and field offsets. Clean room: no game code was decompiled and no third-party editor code or table was copied. -->
 
 # Grand Theft Auto: San Andreas saves
 
@@ -10,8 +10,9 @@ Implemented by `format.gta-sa` (`crates/saveprism-codecs/src/gta_sa/`).
 - The MIT-licensed 010 Editor template `formats/gtasasave.bt` from
   [x87/GTA-Save-Formats](https://github.com/x87/GTA-Save-Formats), read for behaviour and block
   names.
-- The MIT-licensed [libsavegame](https://github.com/gtasa-savegame-editor/libsavegame) by Paul
-  Breeuwsma, used to confirm the block order, the `BLOCK` marker count and the field offsets.
+- The open-source [libsavegame](https://github.com/gtasa-savegame-editor/libsavegame) by Paul
+  Breeuwsma (from the MIT-licensed GTA:SA Savegame Editor project; the library repository has no
+  license file), read only to confirm the block order, the `BLOCK` marker count and the field offsets.
 - A public 100% complete PC save was used to confirm the offsets: the title `Madd Dogg`, money
   101,456,929, health 128, armour 0, maximum health 128 and maximum armour 100 all read as
   plausible values. That save is not committed; the fixture is invented.
@@ -103,7 +104,7 @@ never changes the file length, so block boundaries stay valid.
 
 - Only the classic PC save is handled. The Android/iOS file is 195,002 bytes and the Definitive
   Edition file is 395,926 bytes; both use a different layout and are refused.
-- The `BLOCK` marker scan is the same approach used by the MIT `libsavegame`. A save whose script
+- The `BLOCK` marker scan is the same approach used by `libsavegame`. A save whose script
   body contains the five bytes `BLOCK` before block 11 would fail the block 10 length check and be
   refused.
 - Stats, skills (fat, stamina, muscle, sex appeal), weapons, clothes, vehicles and mission state

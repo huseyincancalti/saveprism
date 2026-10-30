@@ -1,6 +1,9 @@
-Four new languages, and fixes for Linux and macOS.
+Four new languages, more games, and fixes for Linux and macOS.
 
 ### What's new
+- **More saves:** Grand Theft Auto III, IV and San Andreas (money, health, armour, wanted and chaos level, in-game
+  time), Minecraft Java region files (`.mca`, `.mcr`: the NBT tree of each chunk) and more GameMaker `ds_map` /
+  `ds_list` dumps. Thanks to @YunusTAS13 for all three (#11)!
 - **New languages:** Spanish, Russian, Japanese and Simplified Chinese. Pick one in the language menu in the header
   or in Settings. Want SavePrism in your language? A language is a single file:
   [Add a language](https://github.com/huseyincancalti/saveprism/blob/main/CONTRIBUTING.md#add-a-language).

@@ -75,18 +75,20 @@ fn parse_at(
     offset: usize,
 ) -> Result<(SaveDoc, String)> {
     let mut doc = SaveDoc::with_node_limit(limits.max_nodes);
-    let (root, name) = parse_into(input, limits, endian, offset, &mut doc)?;
+    let (root, name) = parse_into(input, limits, endian, offset, false, &mut doc)?;
     doc.set_root(root);
     Ok((doc, name))
 }
 
 /// Parses one big-endian root tag into an existing document. The whole input must be the tag.
+/// Byte, int and long arrays become one read-only `Bytes` node each, holding the raw big-endian
+/// elements: a region chunk's block and light arrays would otherwise cost one node per element.
 pub(super) fn parse_java_into(
     input: &[u8],
     limits: &Limits,
     doc: &mut SaveDoc,
 ) -> Result<(NodeId, String)> {
-    parse_into(input, limits, Endian::Big, 0, doc)
+    parse_into(input, limits, Endian::Big, 0, true, doc)
 }
 
 fn parse_into(
@@ -94,6 +96,7 @@ fn parse_into(
     limits: &Limits,
     endian: Endian,
     offset: usize,
+    packed_arrays: bool,
     doc: &mut SaveDoc,
 ) -> Result<(NodeId, String)> {
     let mut parser = Parser {
@@ -101,6 +104,7 @@ fn parse_into(
         pos: offset,
         endian,
         limits,
+        packed_arrays,
         doc,
     };
     let (root, name) = parser.root()?;
@@ -118,6 +122,7 @@ struct Parser<'a> {
     pos: usize,
     endian: Endian,
     limits: &'a Limits,
+    packed_arrays: bool,
     doc: &'a mut SaveDoc,
 }
 
@@ -199,6 +204,15 @@ impl Parser<'_> {
         self.doc.push(node)
     }
 
+    /// One read-only `Bytes` node with an array's raw element bytes.
+    fn packed(&mut self, count: usize, size: usize, what: &str, kind: &str) -> Result<NodeId> {
+        let length = count
+            .checked_mul(size)
+            .ok_or_else(|| parse_error(format!("the {what} is too large"), self.pos))?;
+        let raw = self.take(length, what)?.to_vec();
+        self.push(Value::Bytes(raw), kind, true)
+    }
+
     fn string(&mut self, what: &str) -> Result<String> {
         let start = self.pos;
         let length = usize::from(self.u16(what)?);
@@ -275,6 +289,9 @@ impl Parser<'_> {
         }
         let count = usize::try_from(count)
             .map_err(|_| parse_error("the byte array is too large", self.pos - 4))?;
+        if self.packed_arrays {
+            return self.packed(count, 1, "byte array", "byte-array");
+        }
         let mut items = Vec::with_capacity(count.min(1024));
         for _ in 0..count {
             let value = self.byte("byte array element")?;
@@ -301,6 +318,9 @@ impl Parser<'_> {
         }
         let count = usize::try_from(count)
             .map_err(|_| parse_error("the int array is too large", self.pos - 4))?;
+        if self.packed_arrays {
+            return self.packed(count, 4, "int array", "int-array");
+        }
         let mut items = Vec::with_capacity(count.min(1024));
         for _ in 0..count {
             let value = self.i32("int array element")?;
@@ -327,6 +347,9 @@ impl Parser<'_> {
         }
         let count = usize::try_from(count)
             .map_err(|_| parse_error("the long array is too large", self.pos - 4))?;
+        if self.packed_arrays {
+            return self.packed(count, 8, "long array", "long-array");
+        }
         let mut items = Vec::with_capacity(count.min(1024));
         for _ in 0..count {
             let value = self.u64("long array element")? as i64;

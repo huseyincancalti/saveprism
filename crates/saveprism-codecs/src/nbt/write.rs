@@ -187,6 +187,9 @@ fn write_payload(
             put_i64(out, value.to_bits() as i64, endian);
         }
         7 => {
+            if let Value::Bytes(raw) = &current.value {
+                return write_packed(raw, 1, endian, out);
+            }
             let Value::Array(items) = &current.value else {
                 return Err(write_error("a byte array is not an array"));
             };
@@ -241,6 +244,9 @@ fn write_payload(
             out.push(0);
         }
         11 => {
+            if let Value::Bytes(raw) = &current.value {
+                return write_packed(raw, 4, endian, out);
+            }
             let Value::Array(items) = &current.value else {
                 return Err(write_error("an int array is not an array"));
             };
@@ -255,6 +261,9 @@ fn write_payload(
             }
         }
         12 => {
+            if let Value::Bytes(raw) = &current.value {
+                return write_packed(raw, 8, endian, out);
+            }
             let Value::Array(items) = &current.value else {
                 return Err(write_error("a long array is not an array"));
             };
@@ -270,6 +279,18 @@ fn write_payload(
         }
         _ => return Err(write_error(format!("unknown NBT tag type {tag}"))),
     }
+    Ok(())
+}
+
+/// Writes an array kept as its raw big-endian element bytes (region chunks).
+fn write_packed(raw: &[u8], size: usize, endian: Endian, out: &mut Vec<u8>) -> Result<()> {
+    if endian != Endian::Big || !raw.len().is_multiple_of(size) {
+        return Err(write_error("a packed NBT array does not fit its type"));
+    }
+    let count =
+        i32::try_from(raw.len() / size).map_err(|_| write_error("the NBT array is too large"))?;
+    put_i32(out, count, endian);
+    out.extend_from_slice(raw);
     Ok(())
 }
 
