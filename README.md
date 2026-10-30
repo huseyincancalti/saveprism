@@ -51,9 +51,9 @@ Pick the file for your system from **[Releases](https://github.com/huseyincancal
 
 | System | File |
 |---|---|
-| Windows 10 and 11 | [SavePrism_0.9.0_x64-setup.exe](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.0/SavePrism_0.9.0_x64-setup.exe) |
-| macOS (Intel and Apple silicon) | [SavePrism_0.9.0_universal.dmg](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.0/SavePrism_0.9.0_universal.dmg) |
-| Linux | [SavePrism_0.9.0_amd64.AppImage](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.0/SavePrism_0.9.0_amd64.AppImage) or [SavePrism_0.9.0_amd64.deb](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.0/SavePrism_0.9.0_amd64.deb) |
+| Windows 10 and 11 | [SavePrism_0.9.1_x64-setup.exe](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.1/SavePrism_0.9.1_x64-setup.exe) |
+| macOS (Intel and Apple silicon) | [SavePrism_0.9.1_universal.dmg](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.1/SavePrism_0.9.1_universal.dmg) |
+| Linux | [SavePrism_0.9.1_amd64.AppImage](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.1/SavePrism_0.9.1_amd64.AppImage) or [SavePrism_0.9.1_amd64.deb](https://github.com/huseyincancalti/saveprism/releases/download/v0.9.1/SavePrism_0.9.1_amd64.deb) |
 
 Windows is tested by hand. The Linux and macOS builds are new and not yet tried on real machines; if something is off,
 please [open an issue](https://github.com/huseyincancalti/saveprism/issues/new/choose).
