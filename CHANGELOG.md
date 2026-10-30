@@ -8,7 +8,7 @@ Four new languages, more games, and fixes for Linux and macOS.
 
 ### More saves
 - Grand Theft Auto III, Grand Theft Auto IV and Grand Theft Auto: San Andreas saves: money, health, armour, wanted and chaos level, in-game time and the last mission name where the game stores one.
-- Minecraft Java region files (`.mca`, `.mcr`): edit the NBT tree of each chunk; block, light and other arrays stay read-only, and LZ4, unknown and external `.mcc` chunks stay read-only.
+- Minecraft Java region files (`.mca`, `.mcr`): edit the values of each chunk, such as block entities (chest contents) and entities; block sections (palettes, biomes, light) and arrays stay read-only, as do LZ4, unknown and external `.mcc` chunks.
 - GameMaker `ds_list` dumps and the newer `ds_map` format (magic 403), plus arrays and the remaining scalar types in both maps and lists.
 - Thanks to YunusTAS13 for all three.
 

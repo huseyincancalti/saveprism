@@ -70,6 +70,13 @@ elements, hint `NBT:byte-array`, `NBT:int-array` or `NBT:long-array`). A full re
 fifty thousand array elements per chunk (block states, sky and block light), so one node per
 element would need tens of millions of nodes and several GB of memory.
 
+The `sections` (block palettes, biomes, light), `Sections` (pre-1.18 chunks under `Level`, and POI
+files) and `PostProcessing` entries of the chunk root or of `Level` are one read-only node each
+(hint `NBT:raw:<tag>`) holding the entry's raw big-endian payload; the writer copies those bytes
+back unchanged. Measured on two real full regions (Minecraft 26.3 and a modded 1.21 world): 642,158
+and 1,876,297 nodes before, 64,177 and 83,734 after; opening took about half the memory. Block
+entities, entities, heightmaps, status and the other chunk values stay editable.
+
 A chunk is opaque when it is external, uses LZ4 or an unknown compression type, or when its
 decompressed bytes are not a complete NBT tree. An opaque chunk keeps its compressed bytes in
 `raw`; the rest of the region remains editable. A damaged location table, an overlapping range or

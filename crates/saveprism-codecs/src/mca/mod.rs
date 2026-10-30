@@ -29,8 +29,10 @@
 //! | `note` | `Str`, why the chunk is opaque | no |
 //!
 //! Inside `data`, byte, int and long arrays are one read-only `Bytes` node each with the raw
-//! big-endian elements: a full region holds tens of millions of array elements (block states,
-//! light), far too many for one node each.
+//! big-endian elements, and the `sections`, `Sections` and `PostProcessing` subtrees of the chunk
+//! root (or of a pre-1.18 `Level`) are one read-only `NBT:raw:<tag>` node with their raw payload:
+//! block palettes and arrays are most of a region's values (a full region measured 640,000 to
+//! 1.9 million nodes before, 64,000 to 84,000 after).
 //!
 //! # Writing
 //!

@@ -1275,7 +1275,7 @@
     "",
     "### Más partidas guardadas",
     "- Partidas de Grand Theft Auto III, Grand Theft Auto IV y Grand Theft Auto: San Andreas: dinero, salud, armadura, nivel de búsqueda y de caos, hora del juego y el nombre de la última misión cuando el juego lo guarda.",
-    "- Archivos de región de Minecraft Java (`.mca`, `.mcr`): edita el árbol NBT de cada chunk; los arrays de bloques, luz y demás, y los chunks LZ4, desconocidos y externos `.mcc`, quedan de solo lectura.",
+    "- Archivos de región de Minecraft Java (`.mca`, `.mcr`): edita los valores de cada chunk, como las entidades de bloque (el contenido de los cofres) y las entidades; las secciones de bloques (paletas, biomas, luz) y los arrays quedan de solo lectura, igual que los chunks LZ4, desconocidos y externos `.mcc`.",
     "- Volcados `ds_list` de GameMaker y el formato `ds_map` más reciente (magic 403), además de arrays y el resto de tipos simples en mapas y listas.",
     "- Gracias a YunusTAS13 por los tres.",
     "",

@@ -1275,7 +1275,7 @@
     "",
     "### Daha fazla kayıt",
     "- Grand Theft Auto III, Grand Theft Auto IV ve Grand Theft Auto: San Andreas kayıtları: para, sağlık, zırh, aranma ve kaos seviyesi, oyun içi saat ve oyunun sakladığı yerde son görevin adı.",
-    "- Minecraft Java bölge dosyaları (`.mca`, `.mcr`): her chunk'ın NBT ağacını düzenle; blok, ışık ve diğer diziler ile LZ4, bilinmeyen ve harici `.mcc` chunk'lar salt okunur kalır.",
+    "- Minecraft Java bölge dosyaları (`.mca`, `.mcr`): her chunk'ın değerlerini düzenle, örneğin blok varlıkları (sandık içerikleri) ve varlıklar; blok bölümleri (palet, biyom, ışık) ve diziler salt okunur kalır, LZ4, bilinmeyen ve harici `.mcc` chunk'lar da öyle.",
     "- GameMaker `ds_list` dökümleri ve yeni `ds_map` biçimi (magic 403); map ve list'lerdeki diziler ve kalan basit değer tipleri de açılıyor.",
     "- Üçü için de YunusTAS13'e teşekkürler.",
     "",

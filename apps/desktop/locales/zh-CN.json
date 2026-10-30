@@ -1275,7 +1275,7 @@
     "",
     "### 更多存档",
     "- Grand Theft Auto III、Grand Theft Auto IV 和 Grand Theft Auto: San Andreas 存档：金钱、生命值、护甲、通缉和混乱等级、游戏内时间，以及游戏有记录时的最后一个任务名称。",
-    "- Minecraft Java 区域文件（`.mca`、`.mcr`）：可编辑每个区块的 NBT 树；方块、光照等数组，以及 LZ4、未知格式和外部 `.mcc` 区块保持只读。",
+    "- Minecraft Java 区域文件（`.mca`、`.mcr`）：可编辑每个区块的数值，例如方块实体（箱子内容）和实体；方块分段（调色板、生物群系、光照）和数组，以及 LZ4、未知格式和外部 `.mcc` 区块保持只读。",
     "- GameMaker `ds_list` 转储和较新的 `ds_map` 格式（magic 403），以及映射和列表中的数组与其余简单类型。",
     "- 感谢 YunusTAS13 贡献以上三项。",
     "",

@@ -204,7 +204,13 @@ fn detection_uses_the_extension_and_the_header() {
     );
 }
 
-/// A region with one uncompressed chunk holding a string and a byte, int and long array.
+/// The raw payload of a list holding one compound `{Y: <y>}`.
+fn one_section(y: u8) -> [u8; 11] {
+    [10, 0, 0, 0, 1, 1, 0, 1, b'Y', y, 0]
+}
+
+/// A region with one uncompressed chunk holding a string, a byte, int and long array, a root
+/// `sections` list, and a pre-1.18 `Level` with `Sections` and a deeper `Deep/sections` byte.
 fn region_with_arrays() -> Vec<u8> {
     let mut nbt = vec![0x0A, 0, 0];
     nbt.extend_from_slice(&[0x08, 0, 4]);
@@ -219,6 +225,19 @@ fn region_with_arrays() -> Vec<u8> {
     nbt.extend_from_slice(&[0x0C, 0, 6]);
     nbt.extend_from_slice(b"States");
     nbt.extend_from_slice(&[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 5]);
+    nbt.extend_from_slice(&[0x09, 0, 8]);
+    nbt.extend_from_slice(b"sections");
+    nbt.extend_from_slice(&one_section(0));
+    nbt.extend_from_slice(&[0x0A, 0, 5]);
+    nbt.extend_from_slice(b"Level");
+    nbt.extend_from_slice(&[0x09, 0, 8]);
+    nbt.extend_from_slice(b"Sections");
+    nbt.extend_from_slice(&one_section(5));
+    nbt.extend_from_slice(&[0x0A, 0, 4]);
+    nbt.extend_from_slice(b"Deep");
+    nbt.extend_from_slice(&[0x01, 0, 8]);
+    nbt.extend_from_slice(b"sections");
+    nbt.extend_from_slice(&[7, 0, 0]);
     nbt.push(0);
     let mut region = vec![0u8; 8192];
     region[..4].copy_from_slice(&[0, 0, 2, 1]);
@@ -230,10 +249,25 @@ fn region_with_arrays() -> Vec<u8> {
 }
 
 #[test]
-fn chunk_arrays_are_one_read_only_block_each() {
+fn chunk_arrays_and_sections_are_one_read_only_block_each() {
     let input = region_with_arrays();
     let mut decoded = decode(&input);
     assert_eq!(encode(&decoded), input);
+    assert_eq!(
+        value(&decoded, "/chunks/0/data/sections"),
+        Value::Bytes(one_section(0).to_vec())
+    );
+    assert_eq!(
+        value(&decoded, "/chunks/0/data/Level/Sections"),
+        Value::Bytes(one_section(5).to_vec())
+    );
+    assert_eq!(
+        value(&decoded, "/chunks/0/data/Level/Deep/sections"),
+        Value::Int {
+            v: 7,
+            width: saveprism_core::IntWidth::I8
+        }
+    );
     assert_eq!(
         value(&decoded, "/chunks/0/data/Light"),
         Value::Bytes(vec![1, 2, 3])
@@ -269,6 +303,10 @@ fn chunk_arrays_are_one_read_only_block_each() {
     assert_eq!(
         value(&again, "/chunks/0/data/States"),
         Value::Bytes(vec![0, 0, 0, 0, 0, 0, 0, 5])
+    );
+    assert_eq!(
+        value(&again, "/chunks/0/data/Level/Sections"),
+        Value::Bytes(one_section(5).to_vec())
     );
 }
 

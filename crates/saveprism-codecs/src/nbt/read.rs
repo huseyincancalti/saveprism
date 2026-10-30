@@ -80,9 +80,15 @@ fn parse_at(
     Ok((doc, name))
 }
 
-/// Parses one big-endian root tag into an existing document. The whole input must be the tag.
-/// Byte, int and long arrays become one read-only `Bytes` node each, holding the raw big-endian
-/// elements: a region chunk's block and light arrays would otherwise cost one node per element.
+/// Keys whose whole subtree stays one read-only `NBT:raw:<tag>` bytes node in a region chunk,
+/// when they sit in the chunk's root compound or one level below it (pre-1.18 `Level`): block
+/// palettes and post-processing lists hold most of a chunk's values but are not player data.
+const RAW_CHUNK_KEYS: [&str; 3] = ["sections", "Sections", "PostProcessing"];
+
+/// Parses one big-endian root tag of a region chunk into an existing document. The whole input
+/// must be the tag. Byte, int and long arrays become one read-only `Bytes` node each, holding the
+/// raw big-endian elements, and the [`RAW_CHUNK_KEYS`] subtrees keep their raw payload bytes: one
+/// node per value would need tens of millions of nodes for a full region.
 pub(super) fn parse_java_into(
     input: &[u8],
     limits: &Limits,
@@ -96,7 +102,7 @@ fn parse_into(
     limits: &Limits,
     endian: Endian,
     offset: usize,
-    packed_arrays: bool,
+    region: bool,
     doc: &mut SaveDoc,
 ) -> Result<(NodeId, String)> {
     let mut parser = Parser {
@@ -104,7 +110,7 @@ fn parse_into(
         pos: offset,
         endian,
         limits,
-        packed_arrays,
+        region,
         doc,
     };
     let (root, name) = parser.root()?;
@@ -122,7 +128,8 @@ struct Parser<'a> {
     pos: usize,
     endian: Endian,
     limits: &'a Limits,
-    packed_arrays: bool,
+    /// Region chunk mode: packed arrays and raw [`RAW_CHUNK_KEYS`] subtrees.
+    region: bool,
     doc: &'a mut SaveDoc,
 }
 
@@ -213,6 +220,99 @@ impl Parser<'_> {
         self.push(Value::Bytes(raw), kind, true)
     }
 
+    /// One read-only `NBT:raw:<tag>` node with the raw bytes of a whole payload.
+    fn raw(&mut self, tag: u8, depth: usize) -> Result<NodeId> {
+        let start = self.pos;
+        self.skip(tag, depth)?;
+        let raw = self
+            .input
+            .get(start..self.pos)
+            .ok_or_else(|| parse_error("the raw payload is cut short", start))?
+            .to_vec();
+        self.push(Value::Bytes(raw), &format!("raw:{tag}"), true)
+    }
+
+    /// Moves past one payload without building nodes. Every element of a non-empty list takes at
+    /// least one byte, so the work is bounded by the input length.
+    fn skip(&mut self, tag: u8, depth: usize) -> Result<()> {
+        self.check_depth(depth)?;
+        match tag {
+            1 => {
+                self.take(1, "byte")?;
+            }
+            2 => {
+                self.take(2, "short")?;
+            }
+            3 | 5 => {
+                self.take(4, "number")?;
+            }
+            4 | 6 => {
+                self.take(8, "number")?;
+            }
+            7 | 11 | 12 => {
+                let at = self.pos;
+                let count = usize::try_from(self.i32("array length")?)
+                    .map_err(|_| parse_error("the array length is negative", at))?;
+                let size = match tag {
+                    7 => 1,
+                    11 => 4,
+                    _ => 8,
+                };
+                let length = count
+                    .checked_mul(size)
+                    .ok_or_else(|| parse_error("the array is too large", at))?;
+                self.take(length, "array")?;
+            }
+            8 => {
+                let length = usize::from(self.u16("string length")?);
+                self.take(length, "string")?;
+            }
+            9 => {
+                let element = self.byte("list element type")?;
+                if element > 12 {
+                    return Err(parse_error(
+                        format!("unknown NBT list element type {element}"),
+                        self.pos - 1,
+                    ));
+                }
+                let at = self.pos;
+                let count = usize::try_from(self.i32("list length")?)
+                    .map_err(|_| parse_error("the list length is negative", at))?;
+                if count > 0 && element == 0 {
+                    return Err(parse_error(
+                        "a non-empty list has the end tag as its element type",
+                        at,
+                    ));
+                }
+                for _ in 0..count {
+                    self.skip(element, depth + 1)?;
+                }
+            }
+            10 => loop {
+                let element = self.byte("compound element type")?;
+                if element == 0 {
+                    break;
+                }
+                if element > 12 {
+                    return Err(parse_error(
+                        format!("unknown NBT tag type {element}"),
+                        self.pos - 1,
+                    ));
+                }
+                let length = usize::from(self.u16("compound key length")?);
+                self.take(length, "compound key")?;
+                self.skip(element, depth + 1)?;
+            },
+            other => {
+                return Err(parse_error(
+                    format!("unknown NBT tag type {other}"),
+                    self.pos,
+                ));
+            }
+        }
+        Ok(())
+    }
+
     fn string(&mut self, what: &str) -> Result<String> {
         let start = self.pos;
         let length = usize::from(self.u16(what)?);
@@ -245,7 +345,11 @@ impl Parser<'_> {
                 ));
             }
             let name = self.string("compound key")?;
-            let value = self.payload(tag, depth + 1)?;
+            let value = if self.region && depth <= 1 && RAW_CHUNK_KEYS.contains(&name.as_str()) {
+                self.raw(tag, depth + 1)?
+            } else {
+                self.payload(tag, depth + 1)?
+            };
             entries.push((name, value));
         }
         self.push(Value::Object(entries), "compound", true)
@@ -289,7 +393,7 @@ impl Parser<'_> {
         }
         let count = usize::try_from(count)
             .map_err(|_| parse_error("the byte array is too large", self.pos - 4))?;
-        if self.packed_arrays {
+        if self.region {
             return self.packed(count, 1, "byte array", "byte-array");
         }
         let mut items = Vec::with_capacity(count.min(1024));
@@ -318,7 +422,7 @@ impl Parser<'_> {
         }
         let count = usize::try_from(count)
             .map_err(|_| parse_error("the int array is too large", self.pos - 4))?;
-        if self.packed_arrays {
+        if self.region {
             return self.packed(count, 4, "int array", "int-array");
         }
         let mut items = Vec::with_capacity(count.min(1024));
@@ -347,7 +451,7 @@ impl Parser<'_> {
         }
         let count = usize::try_from(count)
             .map_err(|_| parse_error("the long array is too large", self.pos - 4))?;
-        if self.packed_arrays {
+        if self.region {
             return self.packed(count, 8, "long array", "long-array");
         }
         let mut items = Vec::with_capacity(count.min(1024));

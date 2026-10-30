@@ -86,6 +86,11 @@ fn tag_of(node: &Node) -> Result<u8> {
                     .parse::<u8>()
                     .map_err(|_| write_error("an NBT list hint is malformed"))?;
                 9
+            } else if let Some(tag) = other.strip_prefix("raw:") {
+                tag.parse::<u8>()
+                    .ok()
+                    .filter(|tag| (1..=12).contains(tag))
+                    .ok_or_else(|| write_error("an NBT raw hint is malformed"))?
             } else {
                 return Err(write_error(format!("unknown NBT type hint {other}")));
             }
@@ -153,6 +158,24 @@ fn write_payload(
     out: &mut Vec<u8>,
 ) -> Result<()> {
     let current = node(doc, id)?;
+    let raw_hint = current
+        .type_hint
+        .as_ref()
+        .and_then(|hint| hint.as_str().strip_prefix(super::HINT_PREFIX))
+        .is_some_and(|rest| rest.starts_with("raw:"));
+    if raw_hint {
+        // A region chunk subtree kept as its original big-endian payload bytes.
+        let Value::Bytes(raw) = &current.value else {
+            return Err(write_error("a raw NBT payload does not hold bytes"));
+        };
+        if endian != Endian::Big {
+            return Err(write_error(
+                "a raw NBT payload can only be written big-endian",
+            ));
+        }
+        out.extend_from_slice(raw);
+        return Ok(());
+    }
     match tag {
         1 => {
             let value = int_value(current)?;
