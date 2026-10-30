@@ -271,3 +271,68 @@ fn chunk_arrays_are_one_read_only_block_each() {
         Value::Bytes(vec![0, 0, 0, 0, 0, 0, 0, 5])
     );
 }
+
+#[test]
+#[ignore = "reads the local, git-ignored fixtures/external/minecraft-region regions"]
+fn real_regions_round_trip_and_edit_one_chunk() {
+    let root =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/external/minecraft-region");
+    let Ok(entries) = std::fs::read_dir(&root) else {
+        eprintln!("no real regions under {}", root.display());
+        return;
+    };
+    let mut regions: Vec<PathBuf> = entries
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.extension().is_some_and(|ext| ext == "mca"))
+        .collect();
+    regions.sort();
+    assert!(!regions.is_empty());
+    for path in regions {
+        let input = std::fs::read(&path).expect("region reads");
+        let mut decoded = decode(&input);
+        assert_eq!(encode(&decoded), input, "{}", path.display());
+        let Value::Int { v: edited, .. } = value(&decoded, "/chunks/0/index") else {
+            panic!("{} has no chunk index", path.display());
+        };
+        let Value::Int { v: inhabited, .. } = value(&decoded, "/chunks/0/data/InhabitedTime")
+        else {
+            panic!("{} has no InhabitedTime in its first chunk", path.display());
+        };
+        set(
+            &mut decoded,
+            "/chunks/0/data/InhabitedTime",
+            OwnedValue::Int(inhabited + 1000),
+        );
+        let output = encode(&decoded);
+        let again = decode(&output);
+        assert_eq!(
+            value(&again, "/chunks/0/data/InhabitedTime"),
+            Value::Int {
+                v: inhabited + 1000,
+                width: saveprism_core::IntWidth::I64
+            }
+        );
+        let old = read::parse_header(&input).expect("old header");
+        let new = read::parse_header(&output).expect("new header");
+        for (index, (before, after)) in old.locations.iter().zip(&new.locations).enumerate() {
+            if i128::try_from(index).expect("small") == edited {
+                continue;
+            }
+            match (before, after) {
+                (Some(before), Some(after)) => assert_eq!(
+                    read::read_raw(&input, *before)
+                        .expect("old chunk")
+                        .compressed,
+                    read::read_raw(&output, *after)
+                        .expect("new chunk")
+                        .compressed,
+                    "{}: chunk {index} changed",
+                    path.display()
+                ),
+                (None, None) => {}
+                _ => panic!("{}: chunk {index} appeared or vanished", path.display()),
+            }
+        }
+    }
+}

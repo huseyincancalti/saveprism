@@ -23,5 +23,8 @@ Four new languages, more games, and fixes for Linux and macOS.
 
 ### Good to know
 - The Linux and macOS builds are still new. Found a problem? Please open an issue.
+- GTA III and GTA IV support is brand new: it was built from the public format description, and we have not had a
+  real save from those games yet. If you try one, we would love to hear how it went, and if a save does not open,
+  please open an issue.
 - The installers are not code-signed. Windows: **More info → Run anyway**. macOS: **System Settings → Privacy &
   Security → Open Anyway**.
