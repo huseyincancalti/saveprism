@@ -5644,9 +5644,9 @@ SOFTWARE.
 ### MIT License
 
 Used by:
-- saveprism-desktop 0.9.0
-- saveprism-codecs 0.9.0 (https://github.com/huseyincancalti/saveprism)
-- saveprism-core 0.9.0
+- saveprism-desktop 0.9.1
+- saveprism-codecs 0.9.1 (https://github.com/huseyincancalti/saveprism)
+- saveprism-core 0.9.1
 - brotli-decompressor 6.0.1 (https://github.com/dropbox/rust-brotli-decompressor)
 - dpi 0.1.2 (https://github.com/rust-windowing/winit)
 - minisign-verify 0.3.0 (https://github.com/jedisct1/rust-minisign-verify)

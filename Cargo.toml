@@ -41,7 +41,7 @@ saveprism-core = { path = "crates/saveprism-core" }
 saveprism-codecs = { path = "crates/saveprism-codecs" }
 
 [workspace.package]
-version = "0.9.0"
+version = "0.9.1"
 edition = "2024"
 license = "MIT"
 rust-version = "1.99"
