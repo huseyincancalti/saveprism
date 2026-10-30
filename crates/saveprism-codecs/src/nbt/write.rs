@@ -28,14 +28,7 @@ pub(super) fn encode(doc: &SaveDoc, params: &Params) -> Result<Vec<u8>> {
         0
     };
     let root_name = params.str(ROOT_NAME)?;
-    let root = doc
-        .get(doc.root())
-        .ok_or_else(|| write_error("the document has no root"))?;
-    let tag = tag_of(root)?;
-    let mut body = Vec::new();
-    body.push(tag);
-    write_name(&mut body, root_name, endian)?;
-    write_payload(doc, doc.root(), tag, endian, &mut body)?;
+    let body = encode_node(doc, doc.root(), root_name, endian)?;
     if header {
         let length =
             i32::try_from(body.len()).map_err(|_| write_error("the NBT payload is too large"))?;
@@ -47,6 +40,23 @@ pub(super) fn encode(doc: &SaveDoc, params: &Params) -> Result<Vec<u8>> {
     } else {
         Ok(body)
     }
+}
+
+/// Encodes one big-endian root tag, name included, without the Bedrock header.
+pub(super) fn encode_java_node(doc: &SaveDoc, id: NodeId, root_name: &str) -> Result<Vec<u8>> {
+    encode_node(doc, id, root_name, Endian::Big)
+}
+
+fn encode_node(doc: &SaveDoc, id: NodeId, root_name: &str, endian: Endian) -> Result<Vec<u8>> {
+    let root = doc
+        .get(id)
+        .ok_or_else(|| write_error("the document has no root"))?;
+    let tag = tag_of(root)?;
+    let mut body = Vec::new();
+    body.push(tag);
+    write_name(&mut body, root_name, endian)?;
+    write_payload(doc, id, tag, endian, &mut body)?;
+    Ok(body)
 }
 
 fn tag_of(node: &Node) -> Result<u8> {

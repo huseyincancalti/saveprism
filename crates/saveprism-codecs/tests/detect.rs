@@ -399,6 +399,18 @@ fn kirikiri_and_gamemaker_flavors_are_recognised() {
             &["format.gamemaker-ds-map"],
         ),
         (
+            include_bytes!("../../../fixtures/synthetic/gamemaker/ds-map-v403.txt"),
+            &["format.gamemaker-ds-map"],
+        ),
+        (
+            include_bytes!("../../../fixtures/synthetic/gamemaker/ds-list.txt"),
+            &["format.gamemaker-ds-list"],
+        ),
+        (
+            include_bytes!("../../../fixtures/synthetic/gamemaker/ds-list-legacy.txt"),
+            &["format.gamemaker-ds-list"],
+        ),
+        (
             include_bytes!("../../../fixtures/synthetic/pixel-game-maker-mv/play_LOADFILE1.json"),
             &["format.json"],
         ),

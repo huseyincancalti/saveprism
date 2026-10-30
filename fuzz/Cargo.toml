@@ -226,6 +226,13 @@ doc = false
 bench = false
 
 [[bin]]
+name = "mca"
+path = "fuzz_targets/mca.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
 name = "structured_text"
 path = "fuzz_targets/structured_text.rs"
 test = false
@@ -270,6 +277,13 @@ bench = false
 [[bin]]
 name = "gamemaker"
 path = "fuzz_targets/gamemaker.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "gamemaker_list"
+path = "fuzz_targets/gamemaker_list.rs"
 test = false
 doc = false
 bench = false
@@ -361,6 +375,27 @@ bench = false
 [[bin]]
 name = "slime_rancher"
 path = "fuzz_targets/slime_rancher.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "gta4"
+path = "fuzz_targets/gta4.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "gta_sa"
+path = "fuzz_targets/gta_sa.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "gta3"
+path = "fuzz_targets/gta3.rs"
 test = false
 doc = false
 bench = false

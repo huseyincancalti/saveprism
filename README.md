@@ -298,6 +298,9 @@ The most asked:
 | Ren'Py | `.save`, `persistent` | store variables (read as data, never run) |
 | Twine · SugarCube 2 | save files and save codes | story variables |
 | Terraria | player `.plr` (key from the game's own `Terraria.exe`), world `.wld` | name, difficulty, play time, life/mana, inventory; world name, seed, size, ids and flags (tiles and the rest read-only) |
+| Grand Theft Auto III | `GTA3sf*.b` (classic PC, 201,820 bytes) | save name, island, in-game time, money, wanted and chaos level |
+| Grand Theft Auto IV | `SGTA4xx` | last mission, in-game date and time, money, health, armour, maximum health/armour, wanted and chaos level |
+| Grand Theft Auto: San Andreas | `GTASAsf*.b` (classic PC, 202,752 bytes) | save name, in-game time, money, health, armour, maximum health/armour |
 | The Witcher 3 | `.sav` | orens, item quantities |
 | JSON and text | `.json`, zip- or gzip-packed JSON | values; add and remove entries |
 
@@ -319,7 +322,7 @@ The most asked:
 | Naninovel | save slots | custom variables |
 | QSP | `.sav` | values; Windows-1251 and KOI8-R legacy saves |
 | KiriKiri / KAG | `.ksd`, `.kdt` | dictionary and array values; plain, scrambled (`FE FE` mode 0/1) and zlib-compressed text |
-| GameMaker | INI, JSON, `ds_map_write` hex dumps | INI/JSON values; `ds_map` values (other `ds_map` versions and `ds_list` dumps are not opened) |
+| GameMaker | INI, JSON, `ds_map_write` and `ds_list_write` hex dumps (magic 402/403 maps, 302/303 lists) | INI/JSON values; map keys, list items, scalar values, 1D and legacy 2D arrays |
 | Pixel Game Maker MV | `play_LOADFILE*.json` | values (plain JSON) |
 | Flash | `.sol` (AMF0 / AMF3) | values |
 | Pokémon Gen 3 | `.sav` | money, coins, bag, party EXP / IVs / EVs / stats |
@@ -338,6 +341,7 @@ The most asked:
 | CBOR | `.cbor` | values (tags stay as read-only wrappers) |
 | BSON | `.bson` | doubles, strings, ints and booleans (other types read-only) |
 | Minecraft NBT | `.dat`, `.nbt` (Java big-endian, Bedrock little-endian, gzip) | values and numeric array elements |
+| Minecraft Java region | `.mca`, `.mcr` | chunk NBT values; opaque, LZ4 and external `.mcc` chunks stay read-only |
 | Compressed saves | bzip2, Zstandard, xz, LZMA-alone, LZip, LZ4 frame, Brotli, raw deflate, LZF (raw and `ZV` blocks) — found by content, any extension | the same formats inside any of these layers |
 | XOR-obfuscated saves | single-byte or repeating key up to 32 bytes | the format inside; the key is recovered from the inner format automatically |
 | Tar archives | `.tar` | one payload entry, the rest of the archive kept byte-identical |

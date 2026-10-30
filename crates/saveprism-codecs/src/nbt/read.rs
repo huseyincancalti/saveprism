@@ -74,12 +74,34 @@ fn parse_at(
     endian: Endian,
     offset: usize,
 ) -> Result<(SaveDoc, String)> {
+    let mut doc = SaveDoc::with_node_limit(limits.max_nodes);
+    let (root, name) = parse_into(input, limits, endian, offset, &mut doc)?;
+    doc.set_root(root);
+    Ok((doc, name))
+}
+
+/// Parses one big-endian root tag into an existing document. The whole input must be the tag.
+pub(super) fn parse_java_into(
+    input: &[u8],
+    limits: &Limits,
+    doc: &mut SaveDoc,
+) -> Result<(NodeId, String)> {
+    parse_into(input, limits, Endian::Big, 0, doc)
+}
+
+fn parse_into(
+    input: &[u8],
+    limits: &Limits,
+    endian: Endian,
+    offset: usize,
+    doc: &mut SaveDoc,
+) -> Result<(NodeId, String)> {
     let mut parser = Parser {
         input,
         pos: offset,
         endian,
         limits,
-        doc: SaveDoc::with_node_limit(limits.max_nodes),
+        doc,
     };
     let (root, name) = parser.root()?;
     if parser.pos != input.len() {
@@ -88,8 +110,7 @@ fn parse_at(
             parser.pos,
         ));
     }
-    parser.doc.set_root(root);
-    Ok((parser.doc, name))
+    Ok((root, name))
 }
 
 struct Parser<'a> {
@@ -97,7 +118,7 @@ struct Parser<'a> {
     pos: usize,
     endian: Endian,
     limits: &'a Limits,
-    doc: SaveDoc,
+    doc: &'a mut SaveDoc,
 }
 
 impl Parser<'_> {

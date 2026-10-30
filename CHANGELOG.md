@@ -2,6 +2,13 @@
 
 Player-facing notes for each release. The app shows the section of the running version.
 
+## Unreleased
+
+### More saves
+- Grand Theft Auto III, Grand Theft Auto IV and Grand Theft Auto: San Andreas saves: money, health, armour, wanted and chaos level, in-game time and the last mission name where the game stores one.
+- Minecraft Java region files (`.mca`, `.mcr`): edit the NBT tree of each chunk; LZ4, unknown and external `.mcc` chunks stay read-only.
+- GameMaker `ds_list` dumps and the newer `ds_map` format (magic 403), plus arrays and the remaining scalar types in both maps and lists.
+
 ## 0.9.1
 
 Four new languages, and fixes for Linux and macOS.

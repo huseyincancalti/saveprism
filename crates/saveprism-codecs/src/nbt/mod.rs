@@ -66,6 +66,25 @@ pub fn register(reg: &mut Registry) {
     reg.add_codec(Arc::new(NbtCodec));
 }
 
+/// Parses one big-endian root tag into an existing document, for container formats such as the
+/// Minecraft region codec.
+pub(crate) fn parse_java_into(
+    input: &[u8],
+    limits: &saveprism_core::Limits,
+    doc: &mut SaveDoc,
+) -> Result<(saveprism_core::NodeId, String)> {
+    read::parse_java_into(input, limits, doc)
+}
+
+/// Encodes one big-endian root tag from an existing document.
+pub(crate) fn encode_java_node(
+    doc: &SaveDoc,
+    id: saveprism_core::NodeId,
+    root_name: &str,
+) -> Result<Vec<u8>> {
+    write::encode_java_node(doc, id, root_name)
+}
+
 /// The `format.nbt` codec.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct NbtCodec;
