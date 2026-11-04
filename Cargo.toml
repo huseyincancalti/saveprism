@@ -32,7 +32,7 @@ saphyr = "0.2"
 saphyr-parser = "0.2"
 encoding_rs = "0.8"
 blake3 = "1.8"
-rusqlite = { version = "0.40", default-features = false, features = ["bundled", "serialize"] }
+rusqlite = { version = "0.41", default-features = false, features = ["bundled", "serialize"] }
 clap = { version = "4.6", features = ["derive"] }
 tracing-subscriber = "0.3"
 proptest = "1.12"
